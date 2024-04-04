@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import {useCallback, useEffect, useState} from "react";
+import {pwmClient, setupClient} from "./api/PwmHubClient";
+import {useUpdateEffect} from "react-use";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () => {
+    useEffect(() => {
+        setupClient('http://localhost:5117')
+    }, []);
+
+    const [dutyCycle, setDutyCycle] = useState("180");
+    const sendDutyCycle = useCallback(() => {
+        const cycleInt = parseInt(dutyCycle);
+        if (isNaN(cycleInt)) {
+            console.error("SetDutyCycle: not a number");
+            return;
+        }
+
+        pwmClient().setDutyCycle(cycleInt)
+            .then(() => {
+                console.debug("Set the duty cycle");
+            });
+    }, [dutyCycle]);
+
+    useUpdateEffect(() => {
+        sendDutyCycle();
+    }, [sendDutyCycle]);
+
+    return (
+        <div className="App">
+            <input type={'range'} min={0} max={255} value={dutyCycle} onChange={e => {
+                setDutyCycle(e.target.value);
+            }}/>
+            <p>PWM: {dutyCycle}</p>
+        </div>
+    );
 }
 
 export default App;
