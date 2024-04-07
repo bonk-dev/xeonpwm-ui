@@ -5,9 +5,12 @@ import {useUpdateEffect} from "react-use";
 const App = () => {
     useEffect(() => {
         setupClient('http://localhost:5117');
-        pwmClient().onDutyCycleChanged(onDutyCycleChanged);
         pwmClient().connect()
-            .then(async () => {
+            .then(async (madeNewConnection) => {
+                if (!madeNewConnection) return;
+
+                pwmClient().onDutyCycleChanged(onDutyCycleChanged);
+
                 const dt = await pwmClient().getDutyCycle();
                 console.debug(`DT: ${dt}`);
 

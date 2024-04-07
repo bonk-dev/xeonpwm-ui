@@ -27,10 +27,11 @@ class PwmHubClient
 
     async connect() {
         console.debug(this._signalr.state)
-        if (this._signalr.state === 'Connected' || this._signalr.state === 'Connecting') return;
+        if (this._signalr.state === 'Connected' || this._signalr.state === 'Connecting') return false;
 
         await this._signalr.start();
         console.debug("Connected to PWM hub");
+        return true;
     }
 
     async setDutyCycle(dutyCycle) {
