@@ -10,20 +10,35 @@ class PwmHubClient
             .withUrl(`${host}/hubs/pwm`)
             .build();
 
-        this._onSetDutyCycleResultAsync = async (error) => {
-            console.debug(`SetDtCycle result: ${error}`);
+        this._onDutyCycleChangedCallbacks = [];
+
+        this._onDutyCycleChanged = (dutyCycle) => {
+            this._onDutyCycleChangedCallbacks.forEach(cb => {
+                cb(dutyCycle);
+            })
         };
 
-        this._signalr.on('OnSetDutyCycleResultAsync', this._onSetDutyCycleResultAsync);
+        this._signalr.on('OnDutyCycleChanged', this._onDutyCycleChanged);
+    }
 
-        this._signalr.start()
-            .then(() => {
-                console.debug("Connected to PWM hub")
-            });
+    onDutyCycleChanged(callback) {
+        this._onDutyCycleChangedCallbacks.push(callback);
+    }
+
+    async connect() {
+        console.debug(this._signalr.state)
+        if (this._signalr.state === 'Connected' || this._signalr.state === 'Connecting') return;
+
+        await this._signalr.start();
+        console.debug("Connected to PWM hub");
     }
 
     async setDutyCycle(dutyCycle) {
-        await this._signalr.send("SetDutyCycle", dutyCycle);
+        await this._signalr.invoke("SetDutyCycle", dutyCycle);
+    }
+
+    async getDutyCycle() {
+        return await this._signalr.invoke("GetDutyCycle");
     }
 }
 
