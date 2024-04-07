@@ -11,7 +11,6 @@ const App = () => {
                 const dt = await pwmClient().getDutyCycle();
                 console.debug(`DT: ${dt}`);
 
-                // TODO: Avoid sending duty cycle on connect
                 setDutyCycle(dt);
             });
     }, []);
@@ -20,19 +19,23 @@ const App = () => {
         setDutyCycle(dutyCycle);
     }
 
-    const [dutyCycle, setDutyCycle] = useState("180");
+    const [dutyCycle, setDutyCycle] = useState(180);
+    const [dutyCycleToSend, setDutyCycleToSend] = useState(180);
     const sendDutyCycle = useCallback(() => {
-        const cycleInt = parseInt(dutyCycle);
-        if (isNaN(cycleInt)) {
+        if (isNaN(dutyCycleToSend)) {
             console.error("SetDutyCycle: not a number");
             return;
         }
 
-        pwmClient().setDutyCycle(cycleInt)
+        pwmClient().setDutyCycle(dutyCycleToSend)
             .then(() => {
                 console.debug("Set the duty cycle");
             });
-    }, [dutyCycle]);
+    }, [dutyCycleToSend]);
+
+    useEffect(() => {
+        setDutyCycle(dutyCycleToSend);
+    }, [dutyCycleToSend]);
 
     useUpdateEffect(() => {
         sendDutyCycle();
@@ -41,7 +44,7 @@ const App = () => {
     return (
         <div className="App">
             <input type={'range'} min={0} max={255} value={dutyCycle} onChange={e => {
-                setDutyCycle(e.target.value);
+                setDutyCycleToSend(parseInt(e.target.value));
             }}/>
             <p>PWM: {dutyCycle}</p>
         </div>
