@@ -1,57 +1,24 @@
-import {useCallback, useEffect, useState} from "react";
-import {pwmClient, setupClient} from "./api/PwmHubClient";
-import {useUpdateEffect} from "react-use";
+import {NextUIProvider} from "@nextui-org/react";
+import {Route, Routes, useNavigate} from "react-router-dom";
+import Root from "./routes/Root";
+import Auto from "./routes/Auto";
+import Manual from "./routes/Manual";
+import Settings from "./routes/Settings";
 
 const App = () => {
-    useEffect(() => {
-        setupClient('http://localhost:5117');
-        pwmClient().connect()
-            .then(async (madeNewConnection) => {
-                if (!madeNewConnection) return;
-
-                pwmClient().onDutyCycleChanged(onDutyCycleChanged);
-
-                const dt = await pwmClient().getDutyCycle();
-                console.debug(`DT: ${dt}`);
-
-                setDutyCycle(dt);
-            });
-    }, []);
-
-    const onDutyCycleChanged = (dutyCycle) => {
-        setDutyCycle(dutyCycle);
-    }
-
-    const [dutyCycle, setDutyCycle] = useState(180);
-    const [dutyCycleToSend, setDutyCycleToSend] = useState(180);
-    const sendDutyCycle = useCallback(() => {
-        if (isNaN(dutyCycleToSend)) {
-            console.error("SetDutyCycle: not a number");
-            return;
-        }
-
-        pwmClient().setDutyCycle(dutyCycleToSend)
-            .then(() => {
-                console.debug("Set the duty cycle");
-            });
-    }, [dutyCycleToSend]);
-
-    useEffect(() => {
-        setDutyCycle(dutyCycleToSend);
-    }, [dutyCycleToSend]);
-
-    useUpdateEffect(() => {
-        sendDutyCycle();
-    }, [sendDutyCycle]);
+    const navigate = useNavigate();
 
     return (
-        <div className="App">
-            <input type={'range'} min={0} max={255} value={dutyCycle} onChange={e => {
-                setDutyCycleToSend(parseInt(e.target.value));
-            }}/>
-            <p>PWM: {dutyCycle}</p>
-        </div>
+        <NextUIProvider navigate={navigate}>
+            <Routes>
+                <Route path={"/"} element={<Root/>}>
+                    <Route path={"/auto"} element={<Auto/>}/>
+                    <Route path={"/manual"} element={<Manual/>}/>
+                    <Route path={"/settings"} element={<Settings/>}/>
+                </Route>
+            </Routes>
+        </NextUIProvider>
     );
-}
+};
 
 export default App;
