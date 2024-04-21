@@ -11,18 +11,29 @@ class PwmHubClient
             .build();
 
         this._onDutyCycleChangedCallbacks = [];
-
         this._onDutyCycleChanged = (dutyCycle) => {
             this._onDutyCycleChangedCallbacks.forEach(cb => {
                 cb(dutyCycle);
             })
         };
 
+        this._onMaxDutyCycleChangedCallbacks = [];
+        this._onMaxDutyCycleChanged = (maxDutyCycle) => {
+            this._onMaxDutyCycleChangedCallbacks.forEach(cb => {
+                cb(maxDutyCycle);
+            })
+        };
+
         this._signalr.on('OnDutyCycleChanged', this._onDutyCycleChanged);
+        this._signalr.on('OnMaxDutyCycleChanged', this._onMaxDutyCycleChanged);
     }
 
     onDutyCycleChanged(callback) {
         this._onDutyCycleChangedCallbacks.push(callback);
+    }
+
+    onMaxDutyCycleChanged(callback) {
+        this._onMaxDutyCycleChangedCallbacks.push(callback);
     }
 
     async connect() {
