@@ -5,7 +5,12 @@ const Root = () => {
     return (
         <div>
             <AppHeader/>
-            <Outlet/>
+
+            <section className={'flex flex-col items-center w-full'}>
+                <div className={'max-w-[1024px] w-full px-6'}>
+                    <Outlet/>
+                </div>
+            </section>
         </div>
     );
 };
