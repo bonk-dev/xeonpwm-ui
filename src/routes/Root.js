@@ -1,9 +1,10 @@
 import {Outlet} from "react-router-dom";
+import AppHeader from "../components/AppHeader";
 
 const Root = () => {
     return (
         <div>
-            <h1>asdasdasd</h1>
+            <AppHeader/>
             <Outlet/>
         </div>
     );
