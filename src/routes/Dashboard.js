@@ -9,7 +9,7 @@ const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
 const Dashboard = () => {
     const [maxDutyCycle, setMaxDutyCycle] = useState(255);
     const [dtPercentage, setDtPercentage] = useState(0.20);
-    const [percentageToSend, setPercentageToSend] = useState(0.2);
+    const [dutyCycleToSend, setDutyCycleToSend] = useState(0.2);
 
     useEffect(() => {
         setupClient('http://localhost:5117');
@@ -44,13 +44,14 @@ const Dashboard = () => {
             return;
         }
 
-        if (isNaN(percentageToSend)) {
+        if (isNaN(dutyCycleToSend)) {
             console.error("SetDutyCycle: not a number");
             return;
         }
 
-        const dtCycle = getDutyCycle(percentageToSend, maxDutyCycle);
+        const dtCycle = dutyCycleToSend;
         if (dtCycle < 180) {
+            // do not make too much noise accidentally
             console.debug("night alert: " + dtCycle);
             return;
         }
@@ -58,12 +59,12 @@ const Dashboard = () => {
             .then(() => {
                 console.debug("Set the duty cycle to " + dtCycle);
             });
-    }, [percentageToSend]);
+    }, [dutyCycleToSend]);
 
     // Update the visible du
     useEffect(() => {
-        setDtPercentage(percentageToSend);
-    }, [percentageToSend]);
+        setDtPercentage(getDtPercentage(dutyCycleToSend, maxDutyCycle));
+    }, [dutyCycleToSend, maxDutyCycle]);
 
     useUpdateEffect(() => {
         sendDutyCycle();
@@ -81,7 +82,7 @@ const Dashboard = () => {
                     minValue={0}
                     defaultValue={0.2}
                     value={dtPercentage}
-                    onChange={v => setPercentageToSend(v)}
+                    onChange={v => setDutyCycleToSend(getDutyCycle(v, maxDutyCycle))}
                     formatOptions={{ style: 'percent' }}
                     className="max-w-md"
                 />
