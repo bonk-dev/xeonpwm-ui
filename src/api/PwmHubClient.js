@@ -28,6 +28,10 @@ class PwmHubClient
         this._signalr.on('OnMaxDutyCycleChanged', this._onMaxDutyCycleChanged);
     }
 
+    isConnected() {
+        return this._signalr.state === 'Connected';
+    }
+
     onDutyCycleChanged(callback) {
         this._onDutyCycleChangedCallbacks.push(callback);
     }
