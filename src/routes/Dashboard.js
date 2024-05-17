@@ -87,7 +87,6 @@ const Dashboard = () => {
                     className="max-w-md"
                 />
             </section>
-            <button onClick={() => setDtPercentage(Math.random())}>ghjgjgh</button>
         </article>
     );
 };
