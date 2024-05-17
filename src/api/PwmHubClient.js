@@ -24,8 +24,16 @@ class PwmHubClient
             })
         };
 
+        this._onTemperatureChangedCallbacks = [];
+        this._onTemperatureChanged = (maxDutyCycle) => {
+            this._onTemperatureChangedCallbacks.forEach(cb => {
+                cb(maxDutyCycle);
+            })
+        };
+
         this._signalr.on('OnDutyCycleChanged', this._onDutyCycleChanged);
         this._signalr.on('OnMaxDutyCycleChanged', this._onMaxDutyCycleChanged);
+        this._signalr.on('OnTemperatureChanged', this._onTemperatureChanged);
     }
 
     isConnected() {
@@ -38,6 +46,10 @@ class PwmHubClient
 
     onMaxDutyCycleChanged(callback) {
         this._onMaxDutyCycleChangedCallbacks.push(callback);
+    }
+
+    onTemperatureChanged(callback) {
+        this._onTemperatureChangedCallbacks.push(callback);
     }
 
     async connect() {

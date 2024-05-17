@@ -55,6 +55,7 @@ const Dashboard = () => {
     const [dtPercentage, setDtPercentage] = useState(0.20);
     const [dutyCycleToSend, setDutyCycleToSend] = useState(170);
     const [isManualModeOn, setIsManualModeOn] = useState(true);
+    const [currentTemp, setCurrentTemp] = useState(0);
 
     useEffect(() => {
         setupClient('http://localhost:5117');
@@ -64,6 +65,7 @@ const Dashboard = () => {
 
                 pwmClient().onDutyCycleChanged(onDutyCycleChanged);
                 pwmClient().onMaxDutyCycleChanged(onMaxDutyCycleChanged);
+                pwmClient().onTemperatureChanged(onTemperatureChanged);
 
                 const dt = await pwmClient().getDutyCycle();
                 console.debug(`DT: ${dt}`);
@@ -82,6 +84,15 @@ const Dashboard = () => {
         setMaxDutyCycle(dutyCycle);
         console.debug(`New max: ${dutyCycle}`);
     }
+
+    const onTemperatureChanged = (temperature) => {
+        console.debug(`New temperature: ${temperature}`);
+        setCurrentTemp(temperature);
+    };
+
+    useEffect(() => {
+        chartRef.current.update();
+    }, [currentTemp]);
 
     const sendDutyCycle = useCallback(() => {
         if (!pwmClient().isConnected()) {
@@ -161,7 +172,7 @@ const Dashboard = () => {
             currentTempPlugin: {
                 ...currentTempPlugin,
                 getCurrentTemp: () => {
-                    return 40;
+                    return currentTemp;
                 }
             }
         },
