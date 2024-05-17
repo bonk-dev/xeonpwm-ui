@@ -1,19 +1,12 @@
 import {useUpdateEffect} from "react-use";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {pwmClient, setupClient} from "../api/PwmHubClient";
 import {
-    Button,
     getKeyValue,
     Slider,
-    Switch,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow
+    Switch
 } from "@nextui-org/react";
-import {PopiconsBinLine, PopiconsBinSolid} from "@popicons/react";
+import {PopiconsBinSolid} from "@popicons/react";
 import 'chart.js/auto';
 import {Chart} from "chart.js";
 import dragPlugin from 'chartjs-plugin-dragdata';
@@ -206,30 +199,7 @@ const Dashboard = () => {
             </section>
             <section>
                 <h2>Automatic control</h2>
-
                 <Scatter data={scatterData} options={scatterOptions}/>
-
-                <Table>
-                    <TableHeader columns={autoModeColumns}>
-                        {(column) => (
-                            // align prop does not work,
-                            <TableColumn key={column.key}
-                                         className={column.key === 'remove' ? 'text-right' : ''}
-                                         width={column.key === 'remove' ? '10%' : null}>
-                                {column.label}
-                            </TableColumn>
-                        )}
-                    </TableHeader>
-                    <TableBody items={sampleAutoTemps} emptyContent={'No items added.'}>
-                        {
-                            item => (
-                                <TableRow>
-                                    {columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                                </TableRow>
-                            )
-                        }
-                    </TableBody>
-                </Table>
             </section>
         </article>
     );
