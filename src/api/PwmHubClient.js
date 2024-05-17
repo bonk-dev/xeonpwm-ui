@@ -38,11 +38,18 @@ class PwmHubClient
             })
         };
 
+        this._onAutoModeStatusChangedCallbacks = [];
+        this._onAutoModeStatusChanged = (maxDutyCycle) => {
+            this._onAutoModeStatusChangedCallbacks.forEach(cb => {
+                cb(maxDutyCycle);
+            })
+        };
 
         this._signalr.on('OnDutyCycleChanged', this._onDutyCycleChanged);
         this._signalr.on('OnMaxDutyCycleChanged', this._onMaxDutyCycleChanged);
         this._signalr.on('OnTemperatureChanged', this._onTemperatureChanged);
         this._signalr.on('OnAutoPointsChanged', this._onAutoPointsChanged);
+        this._signalr.on('OnAutoModeStatusChanged', this._onAutoModeStatusChanged);
     }
 
     isConnected() {
@@ -62,6 +69,10 @@ class PwmHubClient
     }
 
     onAutoPointsChanged(callback) {
+        this._onAutoPointsChangedCallbacks.push(callback);
+    }
+
+    onAutoModeStatusChanged(callback) {
         this._onAutoPointsChangedCallbacks.push(callback);
     }
 
@@ -91,6 +102,10 @@ class PwmHubClient
         });
 
         return await this._signalr.invoke('SaveAutoConfiguration', namedPoints);
+    }
+
+    async setAutoModeStatus(enabled) {
+        await this._signalr.invoke('ChangeAutoModeStatus', enabled);
     }
 }
 

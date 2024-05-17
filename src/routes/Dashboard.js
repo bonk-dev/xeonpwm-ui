@@ -47,6 +47,7 @@ const Dashboard = () => {
                 pwmClient().onMaxDutyCycleChanged(onMaxDutyCycleChanged);
                 pwmClient().onTemperatureChanged(onTemperatureChanged);
                 pwmClient().onAutoPointsChanged(onAutoPointsChanged);
+                pwmClient().onAutoModeStatusChanged(onAutoModeStatusChanged);
 
                 const dt = await pwmClient().getDutyCycle();
                 console.debug(`DT: ${dt}`);
@@ -80,6 +81,10 @@ const Dashboard = () => {
         });
         console.debug(newPoints);
         setAutoPoints(newPoints);
+    };
+
+    const onAutoModeStatusChanged = (enabled) => {
+        setIsManualModeOn(!enabled);
     };
 
     useEffect(() => {
@@ -258,7 +263,13 @@ const Dashboard = () => {
     return (
         <article className={'page space-y-5'}>
             <h1 className={'text-2xl'}>Dashboard</h1>
-            <Switch isSelected={isManualModeOn} onValueChange={setIsManualModeOn}>Manual mode</Switch>
+            <Switch isSelected={isManualModeOn} onValueChange={v => {
+                setIsManualModeOn(v);
+                pwmClient().setAutoModeStatus(!v)
+                    .then(() => {
+                        console.debug("Changed auto mode status");
+                    });
+            }}>Manual mode</Switch>
 
             <Divider/>
 
@@ -271,7 +282,10 @@ const Dashboard = () => {
                     minValue={0}
                     defaultValue={0.2}
                     value={dtPercentage}
-                    onChange={v => setDutyCycleToSend(getDutyCycle(v, maxDutyCycle))}
+                    onChange={v => {
+                        if (!isManualModeOn) return;
+                        setDutyCycleToSend(getDutyCycle(v, maxDutyCycle))
+                    }}
                     formatOptions={{ style: 'percent' }}
                     className="max-w-md" isDisabled={!isManualModeOn}
                 />
