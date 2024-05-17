@@ -50,6 +50,7 @@ class PwmHubClient
     }
 
     async setDutyCycle(dutyCycle) {
+        console.trace('SET DUTY CYCLE:' + dutyCycle);
         await this._signalr.invoke("SetDutyCycle", dutyCycle);
     }
 

@@ -115,7 +115,7 @@ const scatterOptions = {
 const Dashboard = () => {
     const [maxDutyCycle, setMaxDutyCycle] = useState(255);
     const [dtPercentage, setDtPercentage] = useState(0.20);
-    const [dutyCycleToSend, setDutyCycleToSend] = useState(0.2);
+    const [dutyCycleToSend, setDutyCycleToSend] = useState(170);
     const [isManualModeOn, setIsManualModeOn] = useState(true);
 
     useEffect(() => {
