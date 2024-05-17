@@ -68,6 +68,17 @@ class PwmHubClient
     async getDutyCycle() {
         return await this._signalr.invoke("GetDutyCycle");
     }
+
+    async saveAutoPoints(xyPoints) {
+        const namedPoints = xyPoints.map(p => {
+            return {
+                temperature: p.x,
+                pwmPercentage: p.y
+            };
+        });
+
+        return await this._signalr.invoke('SaveAutoConfiguration', namedPoints);
+    }
 }
 
 export function setupClient(host) {

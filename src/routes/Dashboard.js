@@ -21,28 +21,30 @@ Chart.register(currentTempPlugin);
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
 
+const startingPoints =
+    [
+        {
+            x: -10,
+            y: 10
+        },
+        {
+            x: 15,
+            y: 10
+        },
+        {
+            x: 50,
+            y: 60
+        },
+        {
+            x: 110,
+            y: 60
+        }
+    ];
 const scatterData = {
     datasets: [
         {
             label: 'Temperature points',
-            data: [
-                {
-                    x: -10,
-                    y: 10
-                },
-                {
-                    x: 15,
-                    y: 10
-                },
-                {
-                    x: 50,
-                    y: 60
-                },
-                {
-                    x: 110,
-                    y: 60
-                }
-            ],
+            data: [...startingPoints],
             backgroundColor: '#0060df',
             pointHitRadius: 25,
             radius: 10
@@ -56,6 +58,7 @@ const Dashboard = () => {
     const [dutyCycleToSend, setDutyCycleToSend] = useState(170);
     const [isManualModeOn, setIsManualModeOn] = useState(true);
     const [currentTemp, setCurrentTemp] = useState(0);
+    const [autoPoints, setAutoPoints] = useState([...startingPoints]);
 
     useEffect(() => {
         setupClient('http://localhost:5117');
@@ -167,6 +170,12 @@ const Dashboard = () => {
                     dataset[dataset.length - 1].y = dataset[dataset.length - 2].y;
 
                     chartRef.current.update('none');
+                    setAutoPoints(dataset);
+                    pwmClient().saveAutoPoints(dataset)
+                        .then(() => {
+                            console.debug('Saved auto points:');
+                            console.debug(dataset);
+                        });
                 }
             },
             currentTempPlugin: {
@@ -229,6 +238,12 @@ const Dashboard = () => {
                 });
             }
 
+            setAutoPoints(dataArr);
+            pwmClient().saveAutoPoints(dataArr)
+                .then(() => {
+                    console.debug('Saved auto points:');
+                    console.debug(dataArr);
+                });
             chartRef.current.update('none');
         }
     };
