@@ -16,12 +16,11 @@ Chart.register(currentTempPlugin);
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
 
-const startingPoints = [];
 const scatterData = {
     datasets: [
         {
             label: 'Temperature points',
-            data: [...startingPoints],
+            data: [],
             backgroundColor: '#0060df',
             pointHitRadius: 25,
             radius: 10

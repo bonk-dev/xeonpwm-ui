@@ -73,7 +73,7 @@ class PwmHubClient
     }
 
     onAutoModeStatusChanged(callback) {
-        this._onAutoPointsChangedCallbacks.push(callback);
+        this._onAutoModeStatusChangedCallbacks.push(callback);
     }
 
     async connect() {
