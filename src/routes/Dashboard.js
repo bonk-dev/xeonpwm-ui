@@ -50,11 +50,6 @@ const Dashboard = () => {
         }
 
         const dtCycle = dutyCycleToSend;
-        if (dtCycle < 180) {
-            // do not make too much noise accidentally
-            console.debug("night alert: " + dtCycle);
-            return;
-        }
         pwmClient().setDutyCycle(dtCycle)
             .then(() => {
                 console.debug("Set the duty cycle to " + dtCycle);
