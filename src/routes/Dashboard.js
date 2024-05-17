@@ -12,8 +12,10 @@ import {Chart} from "chart.js";
 import { getRelativePosition } from "chart.js/helpers";
 import dragPlugin from 'chartjs-plugin-dragdata';
 import {Scatter} from "react-chartjs-2";
+import currentTempPlugin from "../plugins/currentTempPlugin";
 
 Chart.register(dragPlugin);
+Chart.register(currentTempPlugin);
 
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
@@ -153,6 +155,12 @@ const Dashboard = () => {
 
                     chartRef.current.update('none');
                 }
+            },
+            currentTempPlugin: {
+                ...currentTempPlugin,
+                getCurrentTemp: () => {
+                    return 40;
+                }
             }
         },
         scales: {
@@ -180,6 +188,8 @@ const Dashboard = () => {
         onClick(e) {
             const chart = chartRef.current;
             const canPosition = getRelativePosition(e, chartRef.current);
+
+            console.debug(chart);
 
             const dataX = Math.round(chart.scales.x.getValueForPixel(canPosition.x));
             const dataY = Math.round(chart.scales.y.getValueForPixel(canPosition.y));
