@@ -119,7 +119,18 @@ const Dashboard = () => {
                 ...dragPlugin,
                 dragX: true,
                 dragY: true,
-                round: 0
+                round: 0,
+                onDrag: (e, setIndex, index, value) => {
+
+                },
+                onDragEnd: (e, setIndex, index, value) => {
+                    const dataset = chartRef.current.data.datasets[setIndex].data;
+                    dataset.sort((a, b) => {
+                        return a.x - b.x;
+                    });
+
+                    chartRef.current.update('none');
+                }
             }
         },
         scales: {
@@ -170,7 +181,7 @@ const Dashboard = () => {
                 });
             }
 
-            chart.update();
+            chartRef.current.update('none');
         }
     };
 
