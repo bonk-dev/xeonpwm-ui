@@ -24,6 +24,10 @@ const scatterData = {
             label: 'Temperature points',
             data: [
                 {
+                    x: -1,
+                    y: 10
+                },
+                {
                     x: 15,
                     y: 10
                 },
@@ -31,6 +35,10 @@ const scatterData = {
                     x: 50,
                     y: 60
                 },
+                {
+                    x: 101,
+                    y: 60
+                }
             ],
             backgroundColor: '#0060df',
             pointHitRadius: 25,
@@ -120,14 +128,28 @@ const Dashboard = () => {
                 dragX: true,
                 dragY: true,
                 round: 0,
+                onDragStart: (e, setIndex, index, value) => {
+                    if (index === 0 || index === chartRef.current.data.datasets[setIndex].data.length - 1) {
+                        return false;
+                    }
+                },
                 onDrag: (e, setIndex, index, value) => {
-
+                    const set = chartRef.current.data.datasets[setIndex].data;
+                    if (index === 1) {
+                        set[0].y = value.y;
+                    }
+                    else if (index === chartRef.current.data.datasets[setIndex].data.length - 2) {
+                        set[set.length - 1].y = value.y;
+                    }
                 },
                 onDragEnd: (e, setIndex, index, value) => {
                     const dataset = chartRef.current.data.datasets[setIndex].data;
                     dataset.sort((a, b) => {
                         return a.x - b.x;
                     });
+
+                    dataset[0].y = dataset[1].y;
+                    dataset[dataset.length - 1].y = dataset[dataset.length - 2].y;
 
                     chartRef.current.update('none');
                 }
