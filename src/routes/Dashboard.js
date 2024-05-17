@@ -1,8 +1,7 @@
 import {useUpdateEffect} from "react-use";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {pwmClient, setupClient} from "../api/PwmHubClient";
-import {CircularProgress, Divider, getKeyValue, Slider, Switch} from "@nextui-org/react";
-import {PopiconsBinSolid} from "@popicons/react";
+import {CircularProgress, Divider, Slider, Switch} from "@nextui-org/react";
 import 'chart.js/auto';
 import {Chart} from "chart.js";
 import {getRelativePosition} from "chart.js/helpers";
