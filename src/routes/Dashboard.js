@@ -27,7 +27,7 @@ const scatterData = {
             label: 'Temperature points',
             data: [
                 {
-                    x: -1,
+                    x: -10,
                     y: 10
                 },
                 {
@@ -39,7 +39,7 @@ const scatterData = {
                     y: 60
                 },
                 {
-                    x: 101,
+                    x: 110,
                     y: 60
                 }
             ],
