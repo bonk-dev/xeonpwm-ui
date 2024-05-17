@@ -1,16 +1,11 @@
 import {useUpdateEffect} from "react-use";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {pwmClient, setupClient} from "../api/PwmHubClient";
-import {
-    Divider,
-    getKeyValue,
-    Slider,
-    Switch
-} from "@nextui-org/react";
+import {CircularProgress, Divider, getKeyValue, Slider, Switch} from "@nextui-org/react";
 import {PopiconsBinSolid} from "@popicons/react";
 import 'chart.js/auto';
 import {Chart} from "chart.js";
-import { getRelativePosition } from "chart.js/helpers";
+import {getRelativePosition} from "chart.js/helpers";
 import dragPlugin from 'chartjs-plugin-dragdata';
 import {Scatter} from "react-chartjs-2";
 import currentTempPlugin from "../plugins/currentTempPlugin";
@@ -21,25 +16,7 @@ Chart.register(currentTempPlugin);
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
 
-const startingPoints =
-    [
-        {
-            x: -10,
-            y: 10
-        },
-        {
-            x: 15,
-            y: 10
-        },
-        {
-            x: 50,
-            y: 60
-        },
-        {
-            x: 110,
-            y: 60
-        }
-    ];
+const startingPoints = [];
 const scatterData = {
     datasets: [
         {
@@ -58,7 +35,7 @@ const Dashboard = () => {
     const [dutyCycleToSend, setDutyCycleToSend] = useState(170);
     const [isManualModeOn, setIsManualModeOn] = useState(true);
     const [currentTemp, setCurrentTemp] = useState(0);
-    const [autoPoints, setAutoPoints] = useState([...startingPoints]);
+    const [autoPoints, setAutoPoints] = useState(null);
 
     useEffect(() => {
         setupClient('http://localhost:5117');
@@ -69,6 +46,7 @@ const Dashboard = () => {
                 pwmClient().onDutyCycleChanged(onDutyCycleChanged);
                 pwmClient().onMaxDutyCycleChanged(onMaxDutyCycleChanged);
                 pwmClient().onTemperatureChanged(onTemperatureChanged);
+                pwmClient().onAutoPointsChanged(onAutoPointsChanged);
 
                 const dt = await pwmClient().getDutyCycle();
                 console.debug(`DT: ${dt}`);
@@ -92,6 +70,32 @@ const Dashboard = () => {
         console.debug(`New temperature: ${temperature}`);
         setCurrentTemp(temperature);
     };
+
+    const onAutoPointsChanged = (points) => {
+        const newPoints = points.map(p => {
+            return {
+                x: p.temperature,
+                y: p.pwmPercentage
+            };
+        });
+        console.debug(newPoints);
+        setAutoPoints(newPoints);
+    };
+
+    useEffect(() => {
+        if (autoPoints == null) return;
+
+        const start = {
+            x: -10,
+            y: autoPoints[0].y
+        };
+        const end = {
+            x: 110,
+            y: autoPoints[autoPoints.length - 1].y
+        };
+        chartRef.current.data.datasets[0].data = [start, ...autoPoints, end];
+        chartRef.current.update();
+    }, [autoPoints]);
 
     useEffect(() => {
         chartRef.current.update();
@@ -170,7 +174,6 @@ const Dashboard = () => {
                     dataset[dataset.length - 1].y = dataset[dataset.length - 2].y;
 
                     chartRef.current.update('none');
-                    setAutoPoints(dataset);
                     pwmClient().saveAutoPoints(dataset)
                         .then(() => {
                             console.debug('Saved auto points:');
@@ -238,7 +241,6 @@ const Dashboard = () => {
                 });
             }
 
-            setAutoPoints(dataArr);
             pwmClient().saveAutoPoints(dataArr)
                 .then(() => {
                     console.debug('Saved auto points:');
@@ -277,10 +279,17 @@ const Dashboard = () => {
 
             <Divider/>
 
-            <section>
+            <section className={'relative'}>
                 <h2>Automatic control</h2>
                 <p className={'text-sm text-stone-500'}>Click on the chart to add a new point. Click on an existing point to delete it.</p>
                 <Scatter data={scatterData} options={scatterOptions} ref={chartRef}/>
+
+                {autoPoints == null ? (
+                    <div className={'w-full h-full absolute top-0 left-0 flex justify-center items-center flex-col backdrop-blur select-none'}>
+                        <CircularProgress/>
+                        <p>Loading auto temperature points</p>
+                    </div>
+                ) : null}
             </section>
         </article>
     );
