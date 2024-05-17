@@ -14,6 +14,8 @@ import {
     TableRow
 } from "@nextui-org/react";
 import {PopiconsBinLine, PopiconsBinSolid} from "@popicons/react";
+import 'chart.js/auto';
+import {Scatter} from "react-chartjs-2";
 
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
@@ -50,6 +52,49 @@ const autoModeColumns = [
         label: "Remove"
     }
 ];
+
+const scatterData = {
+    datasets: [
+        {
+            label: 'Temperature points',
+            data: [
+                {
+                    x: 15,
+                    y: 10
+                },
+                {
+                    x: 50,
+                    y: 60
+                },
+            ],
+            backgroundColor: '#0060df',
+        },
+    ],
+};
+
+const scatterOptions = {
+    showLine: true,
+    scales: {
+        x: {
+            beginAtZero: true,
+            min: 0,
+            max: 100,
+            title: {
+                display: true,
+                text: 'Temperature [°C]'
+            }
+        },
+        y: {
+            beginAtZero: true,
+            min: 0,
+            max: 100,
+            title: {
+                display: true,
+                text: 'PWM %'
+            }
+        }
+    }
+};
 
 const Dashboard = () => {
     const [maxDutyCycle, setMaxDutyCycle] = useState(255);
@@ -145,6 +190,9 @@ const Dashboard = () => {
             </section>
             <section>
                 <h2>Automatic control</h2>
+
+                <Scatter data={scatterData} options={scatterOptions}/>
+
                 <Table>
                     <TableHeader columns={autoModeColumns}>
                         {(column) => (
