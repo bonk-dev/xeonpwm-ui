@@ -1,10 +1,55 @@
 import {useUpdateEffect} from "react-use";
 import {useCallback, useEffect, useState} from "react";
 import {pwmClient, setupClient} from "../api/PwmHubClient";
-import {Slider, Switch} from "@nextui-org/react";
+import {
+    Button,
+    getKeyValue,
+    Slider,
+    Switch,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow
+} from "@nextui-org/react";
+import {PopiconsBinLine, PopiconsBinSolid} from "@popicons/react";
 
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
+
+const sampleAutoTemps = [
+    {
+        key: 1,
+        temperature: 30,
+        pwmPercentage: 15
+    },
+    {
+        key: 2,
+        temperature: 50,
+        pwmPercentage: 70
+    },
+    {
+        key: 3,
+        temperature: 70,
+        pwmPercentage: 100
+    }
+];
+
+const autoModeColumns = [
+    {
+        key: "temperature",
+        label: "Temperature",
+    },
+    {
+        key: "pwmPercentage",
+        label: "PWM %",
+    },
+    {
+        key: "remove",
+        label: "Remove"
+    }
+];
 
 const Dashboard = () => {
     const [maxDutyCycle, setMaxDutyCycle] = useState(255);
@@ -66,6 +111,19 @@ const Dashboard = () => {
         sendDutyCycle();
     }, [sendDutyCycle]);
 
+    const renderCell = useCallback((autoEntry, key) => {
+        switch (key) {
+            case 'remove':
+                return (
+                    <div className="relative flex justify-end items-center gap-2">
+                        <PopiconsBinSolid className={'text-danger cursor-pointer text-lg'}/>
+                    </div>
+                );
+            default:
+                return getKeyValue(autoEntry, key);
+        }
+    }, []);
+
     return (
         <article className={'page space-y-5'}>
             <h1 className={'text-2xl'}>Dashboard</h1>
@@ -87,6 +145,27 @@ const Dashboard = () => {
             </section>
             <section>
                 <h2>Automatic control</h2>
+                <Table>
+                    <TableHeader columns={autoModeColumns}>
+                        {(column) => (
+                            // align prop does not work,
+                            <TableColumn key={column.key}
+                                         className={column.key === 'remove' ? 'text-right' : ''}
+                                         width={column.key === 'remove' ? '10%' : null}>
+                                {column.label}
+                            </TableColumn>
+                        )}
+                    </TableHeader>
+                    <TableBody items={sampleAutoTemps} emptyContent={'No items added.'}>
+                        {
+                            item => (
+                                <TableRow>
+                                    {columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                                </TableRow>
+                            )
+                        }
+                    </TableBody>
+                </Table>
             </section>
         </article>
     );
