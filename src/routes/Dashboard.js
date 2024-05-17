@@ -1,7 +1,7 @@
 import {useUpdateEffect} from "react-use";
 import {useCallback, useEffect, useState} from "react";
 import {pwmClient, setupClient} from "../api/PwmHubClient";
-import {Slider} from "@nextui-org/react";
+import {Slider, Switch} from "@nextui-org/react";
 
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
@@ -10,6 +10,7 @@ const Dashboard = () => {
     const [maxDutyCycle, setMaxDutyCycle] = useState(255);
     const [dtPercentage, setDtPercentage] = useState(0.20);
     const [dutyCycleToSend, setDutyCycleToSend] = useState(0.2);
+    const [isManualModeOn, setIsManualModeOn] = useState(true);
 
     useEffect(() => {
         setupClient('http://localhost:5117');
@@ -66,8 +67,10 @@ const Dashboard = () => {
     }, [sendDutyCycle]);
 
     return (
-        <article className={'page'}>
-            <h1>Dashboard</h1>
+        <article className={'page space-y-5'}>
+            <h1 className={'text-2xl'}>Dashboard</h1>
+            <Switch isSelected={isManualModeOn} onValueChange={setIsManualModeOn}>Manual mode</Switch>
+
             <section>
                 <h2>Manual control</h2>
                 <Slider
@@ -79,8 +82,11 @@ const Dashboard = () => {
                     value={dtPercentage}
                     onChange={v => setDutyCycleToSend(getDutyCycle(v, maxDutyCycle))}
                     formatOptions={{ style: 'percent' }}
-                    className="max-w-md"
+                    className="max-w-md" isDisabled={!isManualModeOn}
                 />
+            </section>
+            <section>
+                <h2>Automatic control</h2>
             </section>
         </article>
     );
