@@ -1,8 +1,5 @@
 const currentTempPlugin = {
     id: 'currentTempPlugin',
-    beforeDraw: (chart, args, options) => {
-        const {ctx} = chart;
-    },
     afterDraw: (chart, args, options) => {
         const {ctx} = chart;
         const currentTemp = options.getCurrentTemp();
