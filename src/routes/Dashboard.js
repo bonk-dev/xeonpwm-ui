@@ -45,6 +45,7 @@ const scatterData = {
             ],
             backgroundColor: '#0060df',
             pointHitRadius: 25,
+            radius: 10
         },
     ],
 };
