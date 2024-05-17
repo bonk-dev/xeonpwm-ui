@@ -2,6 +2,7 @@ import {useUpdateEffect} from "react-use";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {pwmClient, setupClient} from "../api/PwmHubClient";
 import {
+    Divider,
     getKeyValue,
     Slider,
     Switch
@@ -227,6 +228,8 @@ const Dashboard = () => {
             <h1 className={'text-2xl'}>Dashboard</h1>
             <Switch isSelected={isManualModeOn} onValueChange={setIsManualModeOn}>Manual mode</Switch>
 
+            <Divider/>
+
             <section>
                 <h2>Manual control</h2>
                 <Slider
@@ -241,6 +244,9 @@ const Dashboard = () => {
                     className="max-w-md" isDisabled={!isManualModeOn}
                 />
             </section>
+
+            <Divider/>
+
             <section>
                 <h2>Automatic control</h2>
                 <Scatter data={scatterData} options={scatterOptions} ref={chartRef}/>
