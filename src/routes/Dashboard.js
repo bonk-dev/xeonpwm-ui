@@ -132,19 +132,6 @@ const Dashboard = () => {
         sendDutyCycle();
     }, [sendDutyCycle]);
 
-    const renderCell = useCallback((autoEntry, key) => {
-        switch (key) {
-            case 'remove':
-                return (
-                    <div className="relative flex justify-end items-center gap-2">
-                        <PopiconsBinSolid className={'text-danger cursor-pointer text-lg'}/>
-                    </div>
-                );
-            default:
-                return getKeyValue(autoEntry, key);
-        }
-    }, []);
-
     const scatterOptions = {
         showLine: true,
         dragData: true,
