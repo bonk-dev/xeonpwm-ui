@@ -202,8 +202,6 @@ const Dashboard = () => {
             const chart = chartRef.current;
             const canPosition = getRelativePosition(e, chartRef.current);
 
-            console.debug(chart);
-
             const dataX = Math.round(chart.scales.x.getValueForPixel(canPosition.x));
             const dataY = Math.round(chart.scales.y.getValueForPixel(canPosition.y));
 
@@ -213,7 +211,12 @@ const Dashboard = () => {
             const existingPoint = dataArr.find(d => d.x === dataX);
 
             if (existingPoint != null) {
-                existingPoint.y = dataY;
+                if (existingPoint.y === dataY) {
+                    dataArr.splice(dataArr.indexOf(existingPoint), 1);
+                }
+                else {
+                    existingPoint.y = dataY;
+                }
             }
             else {
                 dataArr.push({
@@ -261,6 +264,7 @@ const Dashboard = () => {
 
             <section>
                 <h2>Automatic control</h2>
+                <p className={'text-sm text-stone-500'}>Click on the chart to add a new point. Click on an existing point to delete it.</p>
                 <Scatter data={scatterData} options={scatterOptions} ref={chartRef}/>
             </section>
         </article>
