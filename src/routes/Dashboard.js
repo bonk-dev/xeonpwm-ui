@@ -153,10 +153,23 @@ const Dashboard = () => {
 
             console.debug(`X: ${dataX}; Y: ${dataY}`);
 
-            chart.data.datasets[0].data.push({
-                x: dataX,
-                y: dataY
-            })
+            const dataArr = chart.data.datasets[0].data;
+            const existingPoint = dataArr.find(d => d.x === dataX);
+
+            if (existingPoint != null) {
+                existingPoint.y = dataY;
+            }
+            else {
+                dataArr.push({
+                    x: dataX,
+                    y: dataY
+                });
+
+                dataArr.sort((a, b) => {
+                    return a.x - b.x;
+                });
+            }
+
             chart.update();
         }
     };
