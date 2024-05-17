@@ -1,5 +1,5 @@
 import {useUpdateEffect} from "react-use";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {pwmClient, setupClient} from "../api/PwmHubClient";
 import {
     Button,
@@ -15,7 +15,11 @@ import {
 } from "@nextui-org/react";
 import {PopiconsBinLine, PopiconsBinSolid} from "@popicons/react";
 import 'chart.js/auto';
+import {Chart} from "chart.js";
+import dragPlugin from 'chartjs-plugin-dragdata';
 import {Scatter} from "react-chartjs-2";
+
+Chart.register(dragPlugin);
 
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
@@ -68,12 +72,22 @@ const scatterData = {
                 },
             ],
             backgroundColor: '#0060df',
+            pointHitRadius: 25,
         },
     ],
 };
 
 const scatterOptions = {
     showLine: true,
+    dragData: true,
+    plugins: {
+        dragData: {
+            ...dragPlugin,
+            dragX: true,
+            dragY: true,
+            round: 0
+        }
+    },
     scales: {
         x: {
             beginAtZero: true,
@@ -82,10 +96,12 @@ const scatterOptions = {
             title: {
                 display: true,
                 text: 'Temperature [°C]'
-            }
+            },
+            dragData: true,
         },
         y: {
             beginAtZero: true,
+            dragData: true,
             min: 0,
             max: 100,
             title: {
