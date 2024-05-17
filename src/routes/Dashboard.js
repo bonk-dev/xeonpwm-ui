@@ -1,5 +1,5 @@
 import {useUpdateEffect} from "react-use";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {pwmClient, setupClient} from "../api/PwmHubClient";
 import {
     getKeyValue,
@@ -9,6 +9,7 @@ import {
 import {PopiconsBinSolid} from "@popicons/react";
 import 'chart.js/auto';
 import {Chart} from "chart.js";
+import { getRelativePosition } from "chart.js/helpers";
 import dragPlugin from 'chartjs-plugin-dragdata';
 import {Scatter} from "react-chartjs-2";
 
@@ -16,39 +17,6 @@ Chart.register(dragPlugin);
 
 const getDtPercentage = (dutyCycle, max) => 1 - (dutyCycle / max);
 const getDutyCycle = (percentage, max) => Math.floor(max * (1 - percentage));
-
-const sampleAutoTemps = [
-    {
-        key: 1,
-        temperature: 30,
-        pwmPercentage: 15
-    },
-    {
-        key: 2,
-        temperature: 50,
-        pwmPercentage: 70
-    },
-    {
-        key: 3,
-        temperature: 70,
-        pwmPercentage: 100
-    }
-];
-
-const autoModeColumns = [
-    {
-        key: "temperature",
-        label: "Temperature",
-    },
-    {
-        key: "pwmPercentage",
-        label: "PWM %",
-    },
-    {
-        key: "remove",
-        label: "Remove"
-    }
-];
 
 const scatterData = {
     datasets: [
@@ -68,41 +36,6 @@ const scatterData = {
             pointHitRadius: 25,
         },
     ],
-};
-
-const scatterOptions = {
-    showLine: true,
-    dragData: true,
-    plugins: {
-        dragData: {
-            ...dragPlugin,
-            dragX: true,
-            dragY: true,
-            round: 0
-        }
-    },
-    scales: {
-        x: {
-            beginAtZero: true,
-            min: 0,
-            max: 100,
-            title: {
-                display: true,
-                text: 'Temperature [°C]'
-            },
-            dragData: true,
-        },
-        y: {
-            beginAtZero: true,
-            dragData: true,
-            min: 0,
-            max: 100,
-            title: {
-                display: true,
-                text: 'PWM %'
-            }
-        }
-    }
 };
 
 const Dashboard = () => {
@@ -178,6 +111,61 @@ const Dashboard = () => {
         }
     }, []);
 
+    const scatterOptions = {
+        showLine: true,
+        dragData: true,
+        plugins: {
+            dragData: {
+                ...dragPlugin,
+                dragX: true,
+                dragY: true,
+                round: 0
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                min: 0,
+                max: 100,
+                title: {
+                    display: true,
+                    text: 'Temperature [°C]'
+                },
+                dragData: true,
+            },
+            y: {
+                beginAtZero: true,
+                dragData: true,
+                min: 0,
+                max: 100,
+                title: {
+                    display: true,
+                    text: 'PWM %'
+                }
+            }
+        },
+        onClick(e) {
+            const chart = chartRef.current;
+            const canPosition = getRelativePosition(e, chartRef.current);
+
+            const dataX = Math.round(chart.scales.x.getValueForPixel(canPosition.x));
+            const dataY = Math.round(chart.scales.y.getValueForPixel(canPosition.y));
+
+            console.debug(`X: ${dataX}; Y: ${dataY}`);
+
+            chart.data.datasets[0].data.push({
+                x: dataX,
+                y: dataY
+            })
+            chart.update();
+        }
+    };
+
+    const chartRef = useRef();
+    useEffect(() => {
+        console.debug(chartRef.current.data);
+    }, []);
+
     return (
         <article className={'page space-y-5'}>
             <h1 className={'text-2xl'}>Dashboard</h1>
@@ -199,7 +187,7 @@ const Dashboard = () => {
             </section>
             <section>
                 <h2>Automatic control</h2>
-                <Scatter data={scatterData} options={scatterOptions}/>
+                <Scatter data={scatterData} options={scatterOptions} ref={chartRef}/>
             </section>
         </article>
     );
