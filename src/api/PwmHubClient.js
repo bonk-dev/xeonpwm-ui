@@ -1,10 +1,21 @@
 import {HubConnectionBuilder} from "@microsoft/signalr";
+import {getToken, storeToken} from "./KeyStorage";
 
 let instance = null;
 
 class PwmHubClient
 {
     constructor(host) {
+        const savedToken = getToken();
+        if (savedToken != null) {
+            this._token = savedToken.token;
+            this._expirationDate = savedToken.expirationDate;
+        }
+        else {
+            this._token = '';
+            this._expirationDate = null;
+        }
+
         this._connect = false;
         this._host = host;
         this._signalr = new HubConnectionBuilder()
@@ -14,8 +25,6 @@ class PwmHubClient
                 }
             })
             .build();
-        this._token = '';
-        this._expirationDate = null;
 
         this._onDutyCycleChangedCallbacks = [];
         this._onDutyCycleChanged = (dutyCycle) => {
@@ -142,6 +151,8 @@ class PwmHubClient
             const obj = JSON.parse(await response.text());
             this._token = obj['token'];
             this._expirationDate =  Date.parse(obj['expirationDate']);
+
+            storeToken(this._token, obj['expirationDate']);
 
             return obj;
         }
