@@ -1,9 +1,10 @@
 import {Button, Input} from "@nextui-org/react";
 import {PopiconsLockDuotone} from "@popicons/react";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {pwmClient} from "../api/PwmHubClient";
 import {useNavigate} from "react-router-dom";
 import {clearToken} from "../api/KeyStorage";
+import {useEffectEvent} from "../hooks/useEffectEvent";
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -47,6 +48,21 @@ const Login = () => {
                 setError('Login failed');
             });
     }, [navigate, username, password]);
+
+    const handleOnKeyDown = useEffectEvent(e => {
+        if (e.key === 'Enter') {
+            handleOnLoginClick();
+        }
+    }, [handleOnLoginClick]);
+
+    useEffect(() => {
+        document.addEventListener('keydown', handleOnKeyDown);
+        return () => {
+            console.debug('removing');
+            window.removeEventListener('keydown', handleOnKeyDown);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <article className={'flex flex-col justify-center items-center w-full h-screen'}>
