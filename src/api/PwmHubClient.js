@@ -122,6 +122,17 @@ class PwmHubClient
         return true;
     }
 
+    async disconnect() {
+        if (this._connect || this._signalr.state !== 'Connected') return;
+        this._connect = true;
+
+        try {
+            await this._signalr.stop();
+        } finally {
+            this._connect = false;
+        }
+    }
+
     async setDutyCycle(dutyCycle) {
         await this._signalr.invoke("SetDutyCycle", dutyCycle);
     }
@@ -173,6 +184,20 @@ class PwmHubClient
         }
 
         throw new Error("Login failed");
+    }
+
+    async logout() {
+        if (!this.isAuthenticated()) {
+            throw new Error("Not authenticated");
+        }
+
+        await fetch(`${this._host}/api/auth/logout`, {
+            method: "POST"
+        });
+
+        this._token = '';
+        this._hubToken = '';
+        this._expirationDate = null;
     }
 
     async getHubToken() {

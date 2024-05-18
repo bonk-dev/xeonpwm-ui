@@ -1,6 +1,24 @@
 import {Link, Navbar, NavbarBrand, NavbarContent, NavbarItem} from "@nextui-org/react";
+import {useCallback} from "react";
+import {clearToken} from "../api/KeyStorage";
+import {pwmClient} from "../api/PwmHubClient";
+import {useNavigate} from "react-router-dom";
 
 const AppHeader = () => {
+    const navigate = useNavigate();
+
+    const handleLogout = useCallback(() => {
+        clearToken();
+
+        Promise.all([
+            pwmClient().logout(),
+            pwmClient().disconnect()
+        ])
+            .finally(() => {
+                navigate('/login');
+            })
+    }, [navigate]);
+
     return (
         <Navbar>
             <NavbarBrand>
@@ -12,6 +30,9 @@ const AppHeader = () => {
                 </NavbarItem>
                 <NavbarItem>
                     <Link href={'/settings'}>Settings</Link>
+                </NavbarItem>
+                <NavbarItem>
+                    <Link href={'#'} onClick={handleLogout}>Logout</Link>
                 </NavbarItem>
             </NavbarContent>
         </Navbar>
