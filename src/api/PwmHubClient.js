@@ -5,11 +5,12 @@ let instance = null;
 class PwmHubClient
 {
     constructor(host) {
+        this._connect = false;
         this._host = host;
         this._signalr = new HubConnectionBuilder()
             .withUrl(`${host}/hubs/pwm`, {
                 accessTokenFactory: () => {
-                    return `Token ${this._token}`;
+                    return `Token ${this._hubToken}`;
                 }
             })
             .build();
@@ -83,8 +84,11 @@ class PwmHubClient
     }
 
     async connect() {
-        console.debug(this._signalr.state)
-        if (this._signalr.state === 'Connected' || this._signalr.state === 'Connecting') return false;
+        if (this._connect || this._signalr.state === 'Connected' || this._signalr.state === 'Connecting') return false;
+        this._connect = true;
+
+        console.debug('Fetching hub auth token');
+        this._hubToken = await this.getHubToken();
 
         await this._signalr.start();
         console.debug("Connected to PWM hub");
@@ -140,6 +144,24 @@ class PwmHubClient
         }
 
         throw new Error("Login failed");
+    }
+
+    async getHubToken() {
+        if (!this.isAuthenticated()) {
+            throw new Error("Not authenticated");
+        }
+
+        const response = await fetch(`${this._host}/api/auth/hubToken`, {
+            method: "POST",
+            headers: {
+                "Authorization": 'Token ' + this._token
+            }
+        });
+
+        if (response.ok) {
+            const obj = JSON.parse(await response.text());
+            return obj['token'];
+        }
     }
 }
 
