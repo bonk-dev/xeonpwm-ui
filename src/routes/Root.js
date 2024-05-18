@@ -1,7 +1,13 @@
-import {Outlet} from "react-router-dom";
+import {Navigate, Outlet, useNavigate} from "react-router-dom";
 import AppHeader from "../components/AppHeader";
+import {pwmClient} from "../api/PwmHubClient";
 
 const Root = () => {
+    if (!pwmClient().isAuthenticated()) {
+        console.debug('Not authenticated. Redirecting to /login');
+        return <Navigate to={'/login'}/>
+    }
+
     return (
         <div>
             <AppHeader/>
