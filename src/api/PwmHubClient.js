@@ -67,7 +67,8 @@ class PwmHubClient
         this._signalr.on('OnAutoPointsChanged', this._onAutoPointsChanged);
         this._signalr.on('OnAutoModeStatusChanged', this._onAutoModeStatusChanged);
         this._signalr.onclose(e => {
-           this._connect = false;
+            console.log(e);
+            this._connect = false;
         });
     }
 

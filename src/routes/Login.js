@@ -40,7 +40,9 @@ const Login = () => {
                     })
             })
             .catch(e => {
-                console.error("Login failed");
+                console.error(e);
+                console.log("Login failed");
+
                 setIsLoading(false);
                 setError('Login failed');
             });
