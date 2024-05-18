@@ -143,12 +143,15 @@ class PwmHubClient
     }
 
     async saveAutoPoints(xyPoints) {
-        const namedPoints = xyPoints.map(p => {
-            return {
-                temperature: p.x,
-                pwmPercentage: p.y
-            };
-        });
+        const namedPoints = xyPoints
+            .filter(p => {
+                return p.x > 0 && p.x < 100;
+            }).map(p => {
+                return {
+                    temperature: p.x,
+                    pwmPercentage: p.y
+                };
+            });
 
         return await this._signalr.invoke('SaveAutoConfiguration', namedPoints);
     }

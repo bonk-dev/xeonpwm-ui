@@ -100,6 +100,9 @@ const Dashboard = () => {
 
     useEffect(() => {
         if (autoPoints == null) return;
+        const lastIndex = autoPoints.length - 1;
+
+        console.debug(autoPoints);
 
         const start = {
             x: -10,
