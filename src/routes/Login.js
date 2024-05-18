@@ -3,6 +3,7 @@ import {PopiconsLockDuotone} from "@popicons/react";
 import {useCallback, useState} from "react";
 import {pwmClient} from "../api/PwmHubClient";
 import {useNavigate} from "react-router-dom";
+import {clearToken} from "../api/KeyStorage";
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -22,7 +23,21 @@ const Login = () => {
                 setIsLoading(false);
                 setError(null);
 
-                navigate('/dashboard');
+                pwmClient()
+                    .connect()
+                    .then(madeNewConn => {
+                        if (madeNewConn) {
+                            navigate('/dashboard');
+                        }
+                    })
+                    .catch(e => {
+                        console.error(e);
+
+                        if (e.message === 'Unauthorized') {
+                            clearToken();
+                            navigate('/login');
+                        }
+                    })
             })
             .catch(e => {
                 console.error("Login failed");

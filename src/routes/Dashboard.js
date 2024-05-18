@@ -8,6 +8,8 @@ import {getRelativePosition} from "chart.js/helpers";
 import dragPlugin from 'chartjs-plugin-dragdata';
 import {Scatter} from "react-chartjs-2";
 import currentTempPlugin from "../plugins/currentTempPlugin";
+import {clearToken} from "../api/KeyStorage";
+import {Navigate, useNavigate} from "react-router-dom";
 
 Chart.register(dragPlugin);
 Chart.register(currentTempPlugin);
@@ -34,24 +36,31 @@ const Dashboard = () => {
     const [isManualModeOn, setIsManualModeOn] = useState(true);
     const [currentTemp, setCurrentTemp] = useState(0);
     const [autoPoints, setAutoPoints] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        pwmClient().connect()
-            .then(async (madeNewConnection) => {
-                if (!madeNewConnection) return;
+        const setupCallbacks = () => {
+            pwmClient().onDutyCycleChanged(onDutyCycleChanged);
+            pwmClient().onMaxDutyCycleChanged(onMaxDutyCycleChanged);
+            pwmClient().onTemperatureChanged(onTemperatureChanged);
+            pwmClient().onAutoPointsChanged(onAutoPointsChanged);
+            pwmClient().onAutoModeStatusChanged(onAutoModeStatusChanged);
+        };
 
-                pwmClient().onDutyCycleChanged(onDutyCycleChanged);
-                pwmClient().onMaxDutyCycleChanged(onMaxDutyCycleChanged);
-                pwmClient().onTemperatureChanged(onTemperatureChanged);
-                pwmClient().onAutoPointsChanged(onAutoPointsChanged);
-                pwmClient().onAutoModeStatusChanged(onAutoModeStatusChanged);
-
-                const dt = await pwmClient().getDutyCycle();
-                console.debug(`DT: ${dt}`);
-
-                setDtPercentage(getDtPercentage(dt, maxDutyCycle));
-            });
-    }, []);
+        if (!pwmClient().isConnected()) {
+            pwmClient().connect()
+                .then(madeNewConn => {
+                    if (!madeNewConn) return;
+                    setupCallbacks();
+                })
+                .catch(e => {
+                    navigate('/login');
+                })
+        }
+        else {
+            setupCallbacks();
+        }
+    }, [navigate]);
 
     const onDutyCycleChanged = (dutyCycle) => {
         const dt = getDtPercentage(dutyCycle, maxDutyCycle);

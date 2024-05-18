@@ -22,3 +22,8 @@ export const getToken = () => {
         expirationDate: expirationDate
     };
 };
+
+export const clearToken = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('expirationDate');
+};

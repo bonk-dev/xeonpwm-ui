@@ -99,11 +99,17 @@ class PwmHubClient
         if (this._connect || this._signalr.state === 'Connected' || this._signalr.state === 'Connecting') return false;
         this._connect = true;
 
-        console.debug('Fetching hub auth token');
-        this._hubToken = await this.getHubToken();
+        try {
+            console.debug('Fetching hub auth token');
+            this._hubToken = await this.getHubToken();
+        } finally {
+            this._connect = false;
+        }
 
         await this._signalr.start();
         console.debug("Connected to PWM hub");
+        this._connect = false;
+
         return true;
     }
 
@@ -175,6 +181,9 @@ class PwmHubClient
         if (response.ok) {
             const obj = JSON.parse(await response.text());
             return obj['token'];
+        }
+        else {
+            throw new Error(response.statusText);
         }
     }
 }
