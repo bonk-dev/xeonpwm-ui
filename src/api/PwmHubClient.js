@@ -192,7 +192,10 @@ class PwmHubClient
         }
 
         await fetch(`${this._host}/api/auth/logout`, {
-            method: "POST"
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${this._token}`
+            }
         });
 
         this._token = '';
