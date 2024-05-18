@@ -95,6 +95,15 @@ class PwmHubClient
         this._onAutoModeStatusChangedCallbacks.push(callback);
     }
 
+    clearCallbacks() {
+        this._onDutyCycleChangedCallbacks.splice(0, this._onDutyCycleChangedCallbacks.length);
+        this._onMaxDutyCycleChangedCallbacks.splice(0, this._onMaxDutyCycleChangedCallbacks.length);
+        this._onTemperatureChangedCallbacks.splice(0, this._onTemperatureChangedCallbacks.length);
+        this._onAutoModeStatusChangedCallbacks.splice(0, this._onAutoModeStatusChangedCallbacks.length);
+        this._onAutoPointsChangedCallbacks.splice(0, this._onAutoPointsChangedCallbacks.length);
+        this._onDutyCycleChangedCallbacks.splice(0, this._onDutyCycleChangedCallbacks.length);
+    }
+
     async connect() {
         if (this._connect || this._signalr.state === 'Connected' || this._signalr.state === 'Connecting') return false;
         this._connect = true;

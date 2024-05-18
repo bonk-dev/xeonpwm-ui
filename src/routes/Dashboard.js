@@ -37,6 +37,37 @@ const Dashboard = () => {
     const [autoPoints, setAutoPoints] = useState(null);
     const navigate = useNavigate();
 
+    const onDutyCycleChanged = useCallback((dutyCycle) => {
+        const dt = getDtPercentage(dutyCycle, maxDutyCycle);
+        console.debug(`CHANGED: ${dt}`);
+        setDtPercentage(dt);
+    }, [maxDutyCycle]);
+
+    const onMaxDutyCycleChanged = useCallback((dutyCycle) => {
+        setMaxDutyCycle(dutyCycle);
+        console.debug(`New max: ${dutyCycle}`);
+    }, []);
+
+    const onTemperatureChanged = useCallback((temperature) => {
+        console.debug(`New temperature: ${temperature}`);
+        setCurrentTemp(temperature);
+    }, []);
+
+    const onAutoPointsChanged = useCallback((points) => {
+        const newPoints = points.map(p => {
+            return {
+                x: p.temperature,
+                y: p.pwmPercentage
+            };
+        });
+        console.debug(newPoints);
+        setAutoPoints(newPoints);
+    }, []);
+
+    const onAutoModeStatusChanged = useCallback((enabled) => {
+        setIsManualModeOn(!enabled);
+    }, []);
+
     useEffect(() => {
         const setupCallbacks = () => {
             pwmClient().onDutyCycleChanged(onDutyCycleChanged);
@@ -60,38 +91,12 @@ const Dashboard = () => {
         else {
             setupCallbacks();
         }
-    }, [navigate]);
 
-    const onDutyCycleChanged = (dutyCycle) => {
-        const dt = getDtPercentage(dutyCycle, maxDutyCycle);
-        console.debug(`CHANGED: ${dt}`);
-        setDtPercentage(dt);
-    }
-
-    const onMaxDutyCycleChanged = (dutyCycle) => {
-        setMaxDutyCycle(dutyCycle);
-        console.debug(`New max: ${dutyCycle}`);
-    }
-
-    const onTemperatureChanged = (temperature) => {
-        console.debug(`New temperature: ${temperature}`);
-        setCurrentTemp(temperature);
-    };
-
-    const onAutoPointsChanged = (points) => {
-        const newPoints = points.map(p => {
-            return {
-                x: p.temperature,
-                y: p.pwmPercentage
-            };
-        });
-        console.debug(newPoints);
-        setAutoPoints(newPoints);
-    };
-
-    const onAutoModeStatusChanged = (enabled) => {
-        setIsManualModeOn(!enabled);
-    };
+        return () => {
+            pwmClient().clearCallbacks();
+        };
+    }, [navigate, onDutyCycleChanged, onMaxDutyCycleChanged,
+        onTemperatureChanged, onAutoPointsChanged, onAutoModeStatusChanged]);
 
     useEffect(() => {
         if (autoPoints == null) return;
