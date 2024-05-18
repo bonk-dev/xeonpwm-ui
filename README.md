@@ -10,6 +10,11 @@ This is the frontend part. It is written using [React](https://react.dev) +
 The app mainly uses [SignalR](https://github.com/dotnet/aspnetcore/tree/main/src/SignalR) 
 to communicate with the ASP.NET Core backend (plain HTTP(S) is only used for authentication).
 
+## Other repos
+Links to related repos:
+- ASP.NET Core backend: [TODO: Add](about:blank) 
+- Arduino code: [TODO: Add](about:blank)
+
 ## Features
 - manual mode
 - automatic control based on current temperature
