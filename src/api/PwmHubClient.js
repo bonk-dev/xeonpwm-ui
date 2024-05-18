@@ -9,6 +9,8 @@ class PwmHubClient
         this._signalr = new HubConnectionBuilder()
             .withUrl(`${host}/hubs/pwm`)
             .build();
+        this._token = '';
+        this._expirationDate = null;
 
         this._onDutyCycleChangedCallbacks = [];
         this._onDutyCycleChanged = (dutyCycle) => {
@@ -106,6 +108,34 @@ class PwmHubClient
 
     async setAutoModeStatus(enabled) {
         await this._signalr.invoke('ChangeAutoModeStatus', enabled);
+    }
+
+    // REST API
+    isAuthenticated() {
+        return this._token !== '' && this._expirationDate != null && this._expirationDate > new Date();
+    }
+
+    async login(username, password) {
+        const response = await fetch(`${this._host}/api/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username,
+                password
+            })
+        });
+
+        if (response.ok) {
+            const obj = JSON.parse(await response.text());
+            this._token = obj['token'];
+            this._expirationDate =  Date.parse(obj['expirationDate']);
+
+            return obj;
+        }
+
+        throw new Error("Login failed");
     }
 }
 

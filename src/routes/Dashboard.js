@@ -36,7 +36,6 @@ const Dashboard = () => {
     const [autoPoints, setAutoPoints] = useState(null);
 
     useEffect(() => {
-        setupClient('http://localhost:5117');
         pwmClient().connect()
             .then(async (madeNewConnection) => {
                 if (!madeNewConnection) return;
