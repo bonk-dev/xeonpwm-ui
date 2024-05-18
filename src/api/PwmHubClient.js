@@ -10,7 +10,7 @@ class PwmHubClient
         this._signalr = new HubConnectionBuilder()
             .withUrl(`${host}/hubs/pwm`, {
                 accessTokenFactory: () => {
-                    return `Token ${this._hubToken}`;
+                    return this._hubToken;
                 }
             })
             .build();
@@ -57,6 +57,9 @@ class PwmHubClient
         this._signalr.on('OnTemperatureChanged', this._onTemperatureChanged);
         this._signalr.on('OnAutoPointsChanged', this._onAutoPointsChanged);
         this._signalr.on('OnAutoModeStatusChanged', this._onAutoModeStatusChanged);
+        this._signalr.onclose(e => {
+           this._connect = false;
+        });
     }
 
     isConnected() {
@@ -154,7 +157,7 @@ class PwmHubClient
         const response = await fetch(`${this._host}/api/auth/hubToken`, {
             method: "POST",
             headers: {
-                "Authorization": 'Token ' + this._token
+                "Authorization": 'Bearer ' + this._token
             }
         });
 
