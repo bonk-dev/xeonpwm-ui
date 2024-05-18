@@ -7,7 +7,11 @@ class PwmHubClient
     constructor(host) {
         this._host = host;
         this._signalr = new HubConnectionBuilder()
-            .withUrl(`${host}/hubs/pwm`)
+            .withUrl(`${host}/hubs/pwm`, {
+                accessTokenFactory: () => {
+                    return `Token ${this._token}`;
+                }
+            })
             .build();
         this._token = '';
         this._expirationDate = null;
