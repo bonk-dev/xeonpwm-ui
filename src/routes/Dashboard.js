@@ -284,8 +284,8 @@ const Dashboard = () => {
 
                 {autoPoints == null ? (
                     <div className={'w-full h-full absolute top-0 left-0 flex justify-center items-center flex-col backdrop-blur select-none'}>
-                        <CircularProgress/>
-                        <p>Loading auto temperature points</p>
+                        <CircularProgress aria-labelledby={'auto-progress-message'}/>
+                        <p id={'auto-progress-message'}>Loading auto temperature points</p>
                     </div>
                 ) : null}
             </section>
