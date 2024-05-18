@@ -1,6 +1,6 @@
 import {useUpdateEffect} from "react-use";
 import {useCallback, useEffect, useRef, useState} from "react";
-import {pwmClient, setupClient} from "../api/PwmHubClient";
+import {pwmClient} from "../api/PwmHubClient";
 import {CircularProgress, Divider, Slider, Switch} from "@nextui-org/react";
 import 'chart.js/auto';
 import {Chart} from "chart.js";
@@ -8,8 +8,7 @@ import {getRelativePosition} from "chart.js/helpers";
 import dragPlugin from 'chartjs-plugin-dragdata';
 import {Scatter} from "react-chartjs-2";
 import currentTempPlugin from "../plugins/currentTempPlugin";
-import {clearToken} from "../api/KeyStorage";
-import {Navigate, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 Chart.register(dragPlugin);
 Chart.register(currentTempPlugin);
@@ -54,6 +53,7 @@ const Dashboard = () => {
                     setupCallbacks();
                 })
                 .catch(e => {
+                    console.error(e);
                     navigate('/login');
                 })
         }
@@ -139,6 +139,7 @@ const Dashboard = () => {
         sendDutyCycle();
     }, [sendDutyCycle]);
 
+    // noinspection JSUnusedGlobalSymbols
     const scatterOptions = {
         showLine: true,
         dragData: true,
@@ -148,12 +149,14 @@ const Dashboard = () => {
                 dragX: true,
                 dragY: true,
                 round: 0,
-                onDragStart: (e, setIndex, index, value) => {
+                onDragStart: (e, setIndex, index) => {
+                    // noinspection JSUnresolvedReference
                     if (index === 0 || index === chartRef.current.data.datasets[setIndex].data.length - 1) {
                         return false;
                     }
                 },
                 onDrag: (e, setIndex, index, value) => {
+                    // noinspection JSUnresolvedReference
                     const set = chartRef.current.data.datasets[setIndex].data;
                     if (index === 1) {
                         set[0].y = value.y;
@@ -163,6 +166,7 @@ const Dashboard = () => {
                     }
                 },
                 onDragEnd: (e, setIndex, index, value) => {
+                    // noinspection JSUnresolvedReference
                     const dataset = chartRef.current.data.datasets[setIndex].data;
                     dataset.sort((a, b) => {
                         return a.x - b.x;
@@ -171,6 +175,7 @@ const Dashboard = () => {
                     dataset[0].y = dataset[1].y;
                     dataset[dataset.length - 1].y = dataset[dataset.length - 2].y;
 
+                    // noinspection JSUnresolvedReference
                     chartRef.current.update('none');
                     pwmClient().saveAutoPoints(dataset)
                         .then(() => {
