@@ -13,12 +13,12 @@ const Login = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const handleOnLoginClick = useCallback(() => {
+    const handleOnLoginClick = useCallback((name, pass) => {
         setError(null);
         setIsLoading(true);
 
         pwmClient()
-            .login(username, password)
+            .login(name, pass)
             .then(() => {
                 console.debug('logged in');
                 setIsLoading(false);
@@ -47,11 +47,11 @@ const Login = () => {
                 setIsLoading(false);
                 setError('Login failed');
             });
-    }, [navigate, username, password]);
+    }, [navigate]);
 
     const handleOnKeyDown = useEffectEvent(e => {
         if (e.key === 'Enter') {
-            handleOnLoginClick();
+            handleOnLoginClick(username, password);
         }
     }, [handleOnLoginClick]);
 
@@ -96,7 +96,7 @@ const Login = () => {
                     color={'primary'}
                     variant={'ghost'}
                     startContent={<PopiconsLockDuotone/>}
-                    onClick={handleOnLoginClick}
+                    onClick={() => handleOnLoginClick(username, password)}
                     isLoading={isLoading}>
                     Login
                 </Button>
