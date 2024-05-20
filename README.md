@@ -12,8 +12,7 @@ to communicate with the ASP.NET Core backend (plain HTTP(S) is only used for aut
 
 ## Other repos
 Links to related repos:
-- ASP.NET Core backend: [TODO: Add](about:blank) 
-- Arduino code: [TODO: Add](about:blank)
+- ASP.NET Core backend & Arduino code: [TODO: Add](about:blank)
 
 ## Features
 - manual mode
